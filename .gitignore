@@ -1,0 +1,8 @@
+# Database
+Contactus.db
+
+# IntelliJ
+/contactus.iml
+/.idea/
+out/
+*.iml
