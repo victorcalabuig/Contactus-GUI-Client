@@ -1,5 +1,8 @@
-package sample;
+package client;
 
+/**
+ * Clase con método y variables comunes a todas las clases del cliente.
+ */
 public class ClientUtils {
 
     /**
