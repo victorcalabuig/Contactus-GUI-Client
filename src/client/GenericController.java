@@ -12,7 +12,14 @@ public class GenericController {
     @FXML
     public Text username;
 
+    public String userId;
+
     public void setUsername(String username){
         this.username.setText(username);
     }
+
+    public void setUserId(String userId){
+        this.userId = userId;
+    }
+
 }

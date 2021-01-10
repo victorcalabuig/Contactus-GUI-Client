@@ -99,18 +99,7 @@ public class LoginController extends ClientUtils implements Initializable {
 
 
 
-    /**
-     * Crea y devuelve una stage con el título y parent indicados.
-     */
-    public Stage createStage(String title, Parent root){
-        Stage stage = new Stage();
 
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle(title);
-        stage.setScene(new Scene(root));
-
-        return stage;
-    }
 
     /**
      * Comprueba, tras envíar un comando login que se ejecuta correctamente en el
@@ -127,21 +116,23 @@ public class LoginController extends ClientUtils implements Initializable {
      * @param admin true si el usuario autenticado es de tipo admin (se utiliza
      *              para determinar que controlador utilizar).
      */
-    public void openHome(String view, boolean admin) throws IOException {
+    public void openHome(String view, boolean admin, String userId) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(view));
         Parent root = loader.load();
 
         //Stage
         Stage homeStage = createStage("Contactus | Home", root);
 
-        //Set new scene's username
+        //Set new scene's username and userId
         if(admin){
             AdminHomeController adminHomeController = loader.getController();
             adminHomeController.setUsername(username.getText().trim());
+            adminHomeController.setUserId(userId);
         }
         else{
             UserHomeController userHomeController = loader.getController();
             userHomeController.setUsername(username.getText().trim());
+            userHomeController.setUserId(userId);
         }
 
         homeStage.show();
@@ -154,8 +145,10 @@ public class LoginController extends ClientUtils implements Initializable {
      */
     public void processLoginResult(String[] fields) throws IOException {
         if(commandSuccess(fields, 5)){
-            if(isAdmin(fields)) openHome("adminHomeView.fxml", true);
-            else openHome("userHomeView.fxml", false);
+            String userId = fields[2];
+
+            if(isAdmin(fields)) openHome("adminHomeView.fxml", true, userId);
+            else openHome("userHomeView.fxml", false, userId);
         }
         else{
             errorMessage.setVisible(true);

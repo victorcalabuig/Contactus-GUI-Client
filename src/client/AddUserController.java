@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class RegisterController extends ClientUtils implements Initializable {
+public class AddUserController extends ClientUtils implements Initializable {
 
     //Componentes para conectarse con el servidor (del proyecto Contactus)
     Socket clientSocket;
