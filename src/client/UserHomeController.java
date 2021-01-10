@@ -20,8 +20,9 @@ import java.util.ResourceBundle;
  */
 public class UserHomeController extends GenericController implements Initializable {
 
-    @FXML Text addPositionMessage;
-
+    /**
+     * Abre una nueva ventana con el formulario para introducir una posición.
+     */
     @FXML
     void addPosition(ActionEvent event) throws IOException, InterruptedException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("addPositionView.fxml"));
@@ -36,7 +37,6 @@ public class UserHomeController extends GenericController implements Initializab
 
     @Override
     public void initialize(URL location, ResourceBundle resources){
-        addPositionMessage.setVisible(false);
     }
 
 

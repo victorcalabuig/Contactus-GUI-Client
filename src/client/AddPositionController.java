@@ -18,6 +18,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+
 public class AddPositionController implements Initializable {
 
     //Componentes para conectarse con el servidor (del proyecto Contactus)
@@ -36,6 +37,10 @@ public class AddPositionController implements Initializable {
     @FXML
     private Text errorMessage;
 
+    /**
+     * Envía el comando addPosition al servidor junto con las coordenadas suministradas en
+     * los campos del formulario.
+     */
     @FXML
     void addPosition(ActionEvent event) throws IOException {
         errorMessage.setVisible(false);
@@ -59,6 +64,9 @@ public class AddPositionController implements Initializable {
         }
     }
 
+    /**
+     * Se ejecuta cuando se presiona el botón "close".
+     */
     @FXML
     void close(ActionEvent event) {
         closeWindow();
@@ -78,11 +86,20 @@ public class AddPositionController implements Initializable {
         }
     }
 
+    /**
+     * Cierra la ventana actual.
+     */
     public void closeWindow(){
         Stage currStage = (Stage) latitude.getScene().getWindow();
         currStage.close();
     }
 
+    /**
+     * Procesa la contestación del servidor tras envíar el comando addPosition. Si el comando
+     * se ha ejecutado correctamente cierra la ventana addPosition, sino muestra el mensaje
+     * de error.
+     * @param fields
+     */
     public void processAddPositionResult(String[] fields){
         if(ClientUtils.commandSuccess(fields, 2)){
             String coordinates = latitude.getText().trim() + " " + longitude.getText().trim();
