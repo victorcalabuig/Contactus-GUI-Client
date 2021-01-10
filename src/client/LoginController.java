@@ -67,10 +67,20 @@ public class LoginController extends ClientUtils implements Initializable {
         }
     }
 
+    @FXML
+    void register(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("addUserView.fxml"));
+        Parent root = loader.load();
+
+        Stage registerStage = createStage("Contactus | Add User", root);
+        registerStage.show();
+    }
+
     /**
      * Implementa la lógica de inicio de la vista: se conecta con el servidor y pone
      * el mensaje de error en "no visible".
      */
+
     @Override
     public void initialize(URL location, ResourceBundle resources){
         errorMessage.setVisible(false);
@@ -87,11 +97,19 @@ public class LoginController extends ClientUtils implements Initializable {
 
     }
 
+
+
     /**
-     * Verifica que el comando enviado al servidor se ha completado con exito.
+     * Crea y devuelve una stage con el título y parent indicados.
      */
-    public static boolean commandSuccess(String[] fields){
-        return Integer.parseInt(fields[1]) == 0 && fields.length == 5;
+    public Stage createStage(String title, Parent root){
+        Stage stage = new Stage();
+
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle(title);
+        stage.setScene(new Scene(root));
+
+        return stage;
     }
 
     /**
@@ -114,10 +132,7 @@ public class LoginController extends ClientUtils implements Initializable {
         Parent root = loader.load();
 
         //Stage
-        Stage homeStage = new Stage();
-        homeStage.initModality(Modality.APPLICATION_MODAL);
-        homeStage.setTitle("Contactus | Home");
-        homeStage.setScene(new Scene(root));
+        Stage homeStage = createStage("Contactus | Home", root);
 
         //Set new scene's username
         if(admin){
@@ -138,7 +153,7 @@ public class LoginController extends ClientUtils implements Initializable {
      * @param fields Contestación del servidor separada por espacios.
      */
     public void processLoginResult(String[] fields) throws IOException {
-        if(commandSuccess(fields)){
+        if(commandSuccess(fields, 5)){
             if(isAdmin(fields)) openHome("adminHomeView.fxml", true);
             else openHome("userHomeView.fxml", false);
         }
