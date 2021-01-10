@@ -80,7 +80,6 @@ public class LoginController extends ClientUtils implements Initializable {
      * Implementa la lógica de inicio de la vista: se conecta con el servidor y pone
      * el mensaje de error en "no visible".
      */
-
     @Override
     public void initialize(URL location, ResourceBundle resources){
         errorMessage.setVisible(false);
@@ -96,10 +95,6 @@ public class LoginController extends ClientUtils implements Initializable {
 
 
     }
-
-
-
-
 
     /**
      * Comprueba, tras envíar un comando login que se ejecuta correctamente en el
