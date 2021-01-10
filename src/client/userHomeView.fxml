@@ -16,7 +16,6 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Button>
-            <Text fx:id="addPositionMessage" fill="#007220" strokeType="OUTSIDE" strokeWidth="0.0" text="Position added!" />
          </children>
          <opaqueInsets>
             <Insets />
