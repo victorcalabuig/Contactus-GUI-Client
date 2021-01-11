@@ -128,10 +128,14 @@ public class LoginController extends ClientUtils implements Initializable {
             UserHomeController userHomeController = loader.getController();
             userHomeController.setUsername(username.getText().trim());
             userHomeController.setUserId(userId);
+            userHomeController.setState(getUserState(userId, out, in));
+            userHomeController.setStateColor();
+            userHomeController.setStateButtonText();
         }
 
         homeStage.show();
     }
+
 
     /**
      * Proceso la contestación del servidor tras enviar un comando login. Si el comando

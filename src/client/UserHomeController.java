@@ -7,7 +7,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
 import client.ClientUtils;
@@ -33,6 +35,12 @@ public class UserHomeController extends GenericController implements Initializab
     Socket clientSocket;
     PrintWriter out;
     BufferedReader in;
+
+    @FXML
+    Text state;
+
+    @FXML
+    Button stateButton;
 
     /**
      * Abre una nueva ventana con el formulario para introducir una posición.
@@ -61,6 +69,16 @@ public class UserHomeController extends GenericController implements Initializab
         }
     }
 
+    @FXML
+    void changeState(ActionEvent event) throws IOException {
+        if(state.getText().equals("infected")){
+            changeTo("healthy");
+        }
+        else{
+            changeTo("infected");
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources){
         //Set up connection with server and in out buffers
@@ -73,8 +91,35 @@ public class UserHomeController extends GenericController implements Initializab
         }
 
         map.setStyle("-fx-border-color: black");
+        stateButton.setStyle("-fx-background-radius: 40");
 
 
+    }
+
+    public void changeTo(String newState) throws IOException {
+        String msgToServer = ClientUtils.buildMessage(userId, newState, "");
+        System.out.println("[MSEN] msg to server: " + msgToServer);
+
+        out.println(msgToServer);
+        out.flush();
+
+        String serverResponse = in.readLine();
+        System.out.println("[MREC] server response: " + serverResponse); //log for console
+
+        //Implementar lógica tras contestación
+        //Formato de mensaje recibido: "comando_ejecutado resultado info1 info2 ...."
+        String[] fields = serverResponse.split(" ");
+        if(fields.length > 0) {
+            if(ClientUtils.commandSuccess(fields, 2)){
+                updateGUI(fields[0]);
+            }
+        }
+    }
+
+    public void updateGUI(String newState){
+        setState(newState);
+        setStateColor();
+        setStateButtonText();
     }
 
     /**
@@ -82,7 +127,7 @@ public class UserHomeController extends GenericController implements Initializab
      */
     public void paintLastPosition() throws IOException {
         String msgToServer = ClientUtils.buildMessage(userId, "lastPosition", "");
-        System.out.println("msg to server: " + msgToServer);
+        System.out.println("[MSEN] msg to server: " + msgToServer);
 
         out.println(msgToServer);
         out.flush();
@@ -140,6 +185,32 @@ public class UserHomeController extends GenericController implements Initializab
         }
         for(Node node : toRemove){
             childrens.remove(node);
+        }
+    }
+
+    public void setState(String state){
+        this.state.setText(state);
+    }
+
+    public void setStateColor(){
+        String color = "";
+        switch (state.getText()){
+            case "healthy" -> color = "green";
+            case "suspect" -> color = "orange";
+            case "infected" -> color = "red";
+        }
+        String css = String.format("-fx-fill: %s", color);
+        state.setStyle(css);
+    }
+
+    public void setStateButtonText(){
+        if(state.getText().equals("infected")){
+            stateButton.setText("Healthy");
+            //stateButton.setStyle("-fx-border-color: green");
+        }
+        else{
+            stateButton.setText("Infected");
+            //stateButton.setStyle("-fx-border-color: #d98282");
         }
     }
 

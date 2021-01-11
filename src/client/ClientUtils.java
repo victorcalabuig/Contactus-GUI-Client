@@ -70,4 +70,27 @@ public class ClientUtils {
         return stage;
     }
 
+
+    public String getUserState(String userId, PrintWriter out, BufferedReader in) throws IOException {
+        String msgToServer = ClientUtils.buildMessage(userId, "state", "");
+        System.out.println("[MSEN] msg to server: " + msgToServer);
+
+        out.println(msgToServer);
+        out.flush();
+
+        String serverResponse = in.readLine();
+        System.out.println("[MREC] server response: " + serverResponse); //log for console
+
+        //Implementar lógica tras contestación
+        //Formato de mensaje recibido: "comando_ejecutado resultado info1 info2 ...."
+        String[] fields = serverResponse.split(" ");
+        if(fields.length > 0) {
+            if(ClientUtils.commandSuccess(fields, 3)){
+                return fields[2];
+            }
+        }
+        return "error";
+    }
+
+
 }

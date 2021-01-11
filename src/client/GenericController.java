@@ -20,14 +20,6 @@ public class GenericController {
     @FXML
     public GridPane map;
 
-    @FXML
-    void paint(ActionEvent event) {
-        Label position = new Label("x");
-        //position.setStyle("-fx-background-color: black");
-        map.add(position, 3, 3);
-        System.out.println("Hello world!");
-    }
-
     public String userId;
 
     /**
