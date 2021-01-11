@@ -122,16 +122,6 @@ public class UserHomeController extends GenericController implements Initializab
         }
     }
 
-    @FXML
-    void logout(ActionEvent event) throws IOException, InterruptedException {
-        closeWindow();
-    }
-
-    public void closeWindow() {
-        Stage currStage = (Stage) username.getScene().getWindow();
-        currStage.close();
-    }
-
     @Override
     public void initialize(URL location, ResourceBundle resources){
         //Set up connection with server and in out buffers
