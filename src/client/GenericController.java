@@ -25,7 +25,8 @@ public class GenericController {
     /**
      * Symbol used to mark a location.
      */
-    public String mark = "x";
+    public String userMark = "x";
+    public String strangerMark = "o";
 
     public void setUsername(String username){
         this.username.setText(username);

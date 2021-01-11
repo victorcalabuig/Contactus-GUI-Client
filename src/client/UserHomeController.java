@@ -14,6 +14,7 @@ import javafx.scene.text.Text;
 
 import client.ClientUtils;
 import javafx.stage.Stage;
+import model.Position;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,11 +37,19 @@ public class UserHomeController extends GenericController implements Initializab
     PrintWriter out;
     BufferedReader in;
 
+    public String color;
+
     @FXML
     Text state;
 
     @FXML
     Button stateButton;
+
+    @FXML
+    private Text alarmMessage;
+
+    @FXML
+    private Text currentPosition;
 
     /**
      * Abre una nueva ventana con el formulario para introducir una posición.
@@ -60,15 +69,49 @@ public class UserHomeController extends GenericController implements Initializab
     /**
      * Actualiza el mapa con la ultima posición del usuario logueado.
      */
+    /*
     @FXML
     void refreshMap(ActionEvent event) {
         try {
-            paintLastPosition();
+            paintLastPosition(userId, userMark, color);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+     */
+
+    /**
+     * Actualiza el mapa, con la ultima posición del usuario y las posiciones (si las hay)
+     * de usuarios sospechosos cercanos (alarmas).
+     * @param event Pulsación del botón Refresh Map.
+     */
+    @FXML
+    void refreshMap(ActionEvent event) throws IOException {
+        resetMap();
+        paintUserPosition();
+        boolean alarmDetected = paintStrangerPositions();
+
+        if(alarmDetected) alarmMessage.setVisible(true);
+        else alarmMessage.setVisible(false);
+    }
+
+    /**
+     * Consulta y actualiza el estado actual de un usuario. Necesario clickarlo cuando el
+     * servidor nos asigna el estado suspect (no se actualiza automáticamente).
+     * @param event
+     * @throws IOException
+     */
+    @FXML
+    void refreshState(ActionEvent event) throws IOException {
+        updateGUI(ClientUtils.getUserState(userId, out, in));
+    }
+
+    /**
+     * Actualiza el estado actual del usuario, y con ello toda la GUI.
+     * @param event
+     * @throws IOException
+     */
     @FXML
     void changeState(ActionEvent event) throws IOException {
         if(state.getText().equals("infected")){
@@ -92,10 +135,46 @@ public class UserHomeController extends GenericController implements Initializab
 
         map.setStyle("-fx-border-color: black");
         stateButton.setStyle("-fx-background-radius: 40");
-
-
+        alarmMessage.setVisible(false);
     }
 
+    /**
+     * Pinta en el mapa la última posición del usuario logueado.
+     * @throws IOException
+     */
+    public void paintUserPosition() throws IOException {
+        Position lastPosition= ClientUtils.getUserLastPosition(userId, out, in);
+        if(lastPosition != null){
+            currentPosition.setText(String.format("(%d, %d)", lastPosition.latitude, lastPosition.longitude));
+            ClientUtils.paintPosition(lastPosition, userMark, color, map);
+        }
+    }
+
+    /**
+     * Comprueba (utilizando el comando listAlarms) si hay algún usuario sospechoso (infected o
+     * suspect) cerca, es decir, si hay alarmas. Si las hay, pinta en el mapa la posición del
+     * usuario sospechoso.
+     * @return true si detecta alarmas, false si no.
+     */
+    public boolean paintStrangerPositions() throws IOException {
+        String[] alarms = ClientUtils.listAlarms(userId, out, in); //alarms[] = ["dangerUserId-distance", "dangerUserId-distance"...]
+        if(alarms == null) return false;
+
+        for (String alarm : alarms) {
+            String fields[] = alarm.split("-");
+            Position strangerPosition = ClientUtils.getUserLastPosition(fields[0], out, in);
+            if(strangerPosition != null){
+                ClientUtils.paintPosition(strangerPosition, strangerMark, "red", map);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Cambia el estado de un usuario al estado indicado, enviando para ello el comando correspondient
+     * al servidor. También actualiza la gui correspondientemente.
+     * @param newState Nuevo estado al que cambiar.
+     */
     public void changeTo(String newState) throws IOException {
         String msgToServer = ClientUtils.buildMessage(userId, newState, "");
         System.out.println("[MSEN] msg to server: " + msgToServer);
@@ -116,6 +195,11 @@ public class UserHomeController extends GenericController implements Initializab
         }
     }
 
+    /**
+     * Actualiza la GUI con los colores y botones del estado correspondiente (infected = rojo,
+     * healhty = verde, suspect = naranja).
+     * @param newState
+     */
     public void updateGUI(String newState){
         setState(newState);
         setStateColor();
@@ -125,7 +209,7 @@ public class UserHomeController extends GenericController implements Initializab
     /**
      * Consulta la última posició del usuario en el servidor con el comando "lastPosition".
      */
-    public void paintLastPosition() throws IOException {
+    public void paintLastPosition(String userId, String mark, String color) throws IOException {
         String msgToServer = ClientUtils.buildMessage(userId, "lastPosition", "");
         System.out.println("[MSEN] msg to server: " + msgToServer);
 
@@ -140,7 +224,7 @@ public class UserHomeController extends GenericController implements Initializab
         String[] fields = serverResponse.split(" ");
         if(fields.length > 0) {
             switch (fields[0]) {
-                case "lastPosition" -> processLastPositionResult(fields);
+                case "lastPosition" -> processLastPositionResult(fields, mark, color);
             }
         }
     }
@@ -151,12 +235,12 @@ public class UserHomeController extends GenericController implements Initializab
      * posicion.
      * @param fields Mensaje del servidor.
      */
-    public void processLastPositionResult(String[] fields){
+    public void processLastPositionResult(String[] fields, String mark, String color){
         if(ClientUtils.commandSuccess(fields, 4)){
             int latitude = (int) Double.parseDouble(fields[2]);
-            int longitude = (int) Double.parseDouble(fields[2]);
+            int longitude = (int) Double.parseDouble(fields[3]);
             resetMap();
-            paintPosition(latitude, longitude);
+            paintPosition(latitude, longitude, mark, color);
         }
     }
 
@@ -164,10 +248,11 @@ public class UserHomeController extends GenericController implements Initializab
     /**
      * Pint una posición en el mapa si está se encuentra dentro de sus limites (15x15)
      */
-    public void paintPosition(int latitude, int longitude){
+    public void paintPosition(int latitude, int longitude, String mark, String color){
         if(latitude > 14 || longitude > 14) return; //No cabe en el mapa 15x15
 
         Label pos = new Label(mark);
+        pos.setStyle(String.format("-fx-text-fill: %s", color));
 
         map.add(pos,latitude, longitude);
         System.out.println("[INFO] painted position " + latitude + " " + longitude);
@@ -201,6 +286,7 @@ public class UserHomeController extends GenericController implements Initializab
         }
         String css = String.format("-fx-fill: %s", color);
         state.setStyle(css);
+        this.color = color;
     }
 
     public void setStateButtonText(){
