@@ -149,4 +149,15 @@
          </children>
       </VBox>
    </center>
+   <bottom>
+      <VBox prefHeight="111.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#logout" text="Logout">
+               <VBox.margin>
+                  <Insets left="15.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+   </bottom>
 </BorderPane>
